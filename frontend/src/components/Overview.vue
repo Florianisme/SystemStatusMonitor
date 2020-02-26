@@ -35,19 +35,27 @@
                     <v-chip :color="getColorFromStatus(item.status)" dark>{{ item.status }}</v-chip>
                 </template>
             </v-data-table>
+            <v-btn bottom right dark fixed fab color="blue" @click.stop="showAddEndpointDialog=true">
+                <v-icon>mdi-plus</v-icon>
+            </v-btn>
+            <AddEndpointDialog v-model="showAddEndpointDialog" v-on:onEndpointAdded="onEndpointAdded"/>
         </v-content>
     </v-app>
 </template>
 
 <script>
+    import AddEndpointDialog from "@/components/dialogs/AddEndpointDialog";
+
     export default {
+        components: {AddEndpointDialog},
         data() {
             return {
                 drawer: null,
+                showAddEndpointDialog: false,
                 dummySystems: [{
                     name: "Prod Environment",
                     description: "Used for receiving and sending partner messages",
-                    status: "Running",
+                    status: "Online",
                     lastChecked: "10 Minutes ago",
                     uptimePercentage: "98,39%"
                 }, {
@@ -67,10 +75,20 @@
             }
         }, methods: {
             getColorFromStatus(status) {
-                return status === 'Running' ? 'green' : 'red'
+                if (status === 'Online') {
+                    return 'green'
+                } else if (status === 'Offline'){
+                    return 'red'
+                } else {
+                    return 'dark-gray'
+                }
+                // eslint-disable-next-line no-unused-vars
+            }, onEndpointAdded(name, description, address, updateInterval) {
+                // TODO save to DB
+                this.dummySystems.push({name: name, description: description, status: 'Unknown', lastChecked: 'never', uptimePercentage: ''})
             }
         }, created() {
-            this.$vuetify.theme.dark = true
+            this.$vuetify.theme.dark = false
         }
     }
 </script>
